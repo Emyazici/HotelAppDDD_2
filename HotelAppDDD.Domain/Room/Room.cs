@@ -28,7 +28,7 @@ namespace HotelAppDDD.Domain.Room
             return room;
         }
 
-        public void RoomReserved(int capacity)
+        public void RoomReserve(int capacity)
         {
             if (!IsAvailable)
                 throw new BusinessRuleException("Room is not available for reservation.");
@@ -40,7 +40,7 @@ namespace HotelAppDDD.Domain.Room
             AddDomainEvent(new RoomReservedEvent(Id, RoomNumber));
         }
 
-        public void RoomReleased()
+        public void RoomRelease()
         {
             if (IsAvailable)
                 throw new BusinessRuleException("Room is already available.");
