@@ -1,0 +1,48 @@
+Yeni Senaryo: Otel Rezervasyon Sistemi
+
+İş Kuralları:
+- Room (Oda) aggregate:
+    - Oda müsait değilse rezervasyon yapılamaz
+    - Oda kapasitesi aşılamaz
+- Reservation (Rezervasyon) aggregate:
+    - Konaklama süresi 1-30 gün arası olmalı
+    - Geç çıkışta günlük 100 TL ceza
+    - İptal edilmiş rezervasyon tekrar iptal edilemez
+
+Senden Beklentim:
+- Room ve Reservation aggregate'leri
+- Domain event'ler
+- Repository interface'leri
+- IsCheckedOut, IsOverdue property'leri
+- CalculateLateFee()
+
+Klasör Yapısı:
+HotelAppDDD.Domain/
+    - Common/
+        - AggregateRoot.cs
+        - IDomainEvent.cs
+    - Exceptions/
+        - DomainException.cs
+    - Interfaces/
+        - IRoomRepository.cs
+        - IReservationRepository.cs
+        - IUnitOfWork.cs
+    - Room/
+        - Room.cs
+        - Events/
+            - RoomReservedEvent.cs
+            - RoomReleasedEvent.cs
+    - Reservation/
+        - Reservation.cs
+        - Events/
+            - ReservationCreatedEvent.cs
+            - ReservationCancelledEvent.cs
+
+Her Sınıfın Sorumluluğu:
+- Room: Müsaitlik ve kapasite yönetimi
+- Reservation: Rezervasyon yaşam döngüsü
+- Room.Reserve(): Müsait mi? Kapasite uygun mu?
+- Room.Release(): Odayı müsaite al
+- Reservation.Create(): Rezervasyon oluştur, süre kontrolü
+- Reservation.Cancel(): İptal et, tekrar iptal kontrolü
+- Reservation.CalculateLateFee(): Geç çıkış cezası hesapla
