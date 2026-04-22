@@ -9,7 +9,7 @@ namespace HotelAppDDD.Domain.Interfaces;
 
     public interface IReservationRepository
     {
-    Task<ReservationEntity> GetByIdAsync(Guid Id, CancellationToken ct = default);
+    Task<ReservationEntity?> GetByIdAsync(Guid Id, CancellationToken ct = default);
     Task<List<ReservationEntity>> GetActiveReservationsByMemberAsync(Guid memberId, CancellationToken ct = default);
     Task AddAsync(ReservationEntity reservation, CancellationToken ct = default);
     void Update(ReservationEntity reservation);

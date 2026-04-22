@@ -7,9 +7,9 @@ using RoomEntity = HotelAppDDD.Domain.Room.Room;
 
 namespace HotelAppDDD.Domain.Interfaces;
 
-    internal interface IRoomRepository
+    public interface IRoomRepository
     {
-        Task<RoomEntity> GetByIdAsync(Guid id, CancellationToken ct = default);
+        Task<RoomEntity?> GetByIdAsync(Guid id, CancellationToken ct = default);
         Task AddAsync(RoomEntity room, CancellationToken ct = default);
         void Update(RoomEntity room);
         void Delete(RoomEntity room);

@@ -17,14 +17,10 @@ namespace HotelAppDDD.Domain.Reservation
         public bool IsCheckedOut => ActualCheckOutDate.HasValue;
         public bool IsCheckedIn => ActualCheckInDate.HasValue;
         public bool IsActive { get; private set; }
-
         private Reservation() { }
 
         public static Reservation Create(Guid roomId, Guid guestId, DateTime expectedCheckInDate, DateTime expectedCheckOutDate)
         {
-            if (expectedCheckInDate >= expectedCheckOutDate)
-                throw new BusinessRuleException("Check-in date must be before check-out date.");
-
             var day = (expectedCheckOutDate - expectedCheckInDate).Days;
             if (day <= 0)
                 throw new BusinessRuleException("Reservation must be at least one day.");
@@ -56,7 +52,8 @@ namespace HotelAppDDD.Domain.Reservation
         {
             if (!IsActive)
                 throw new BusinessRuleException("Reservation has been also cancelled");
-
+			if (IsCheckedIn)
+				throw new BusinessRuleException("Cannot cancel a reservation that has already been checked in.");
             IsActive = false;
             AddDomainEvent(new ReservationCancelledEvent(Id, RoomId));
         }
@@ -64,19 +61,22 @@ namespace HotelAppDDD.Domain.Reservation
         public void CheckIn()
         {
             if (IsCheckedIn)
-            {
                 throw new BusinessRuleException("The Reservation has been also CheckedIn");
-            }
+
             ActualCheckInDate = DateTime.UtcNow;
+            AddDomainEvent(new ReservationCheckedInEvent(Id, RoomId, GuestId, ActualCheckInDate.Value));
         }
 
+        public void CheckOut()
+        {
+            if (!IsCheckedIn)
+                throw new BusinessRuleException("Cannot check out without checking in first.");
 
-        public void CheckOut() {
             if (IsCheckedOut)
-            {
                 throw new BusinessRuleException("The Reservation has been also CheckedOut");
-            }
+
             ActualCheckOutDate = DateTime.UtcNow;
+            AddDomainEvent(new ReservationCheckedOutEvent(Id, RoomId, GuestId, ActualCheckOutDate.Value));
         }
 
 

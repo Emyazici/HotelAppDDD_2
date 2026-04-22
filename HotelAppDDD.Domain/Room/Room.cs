@@ -8,13 +8,22 @@ namespace HotelAppDDD.Domain.Room
     {
         public Guid Id { get; private set; }
         public int RoomNumber { get; private set; }
-        public string RoomType { get; private set; }
+        public string RoomType { get; private set; } = null!;
         public bool IsAvailable { get; private set; }
         public int Capacity { get; private set; }
 
         private Room(){}
         public static Room Create(int roomNumber, string roomType, int capacity)
         {
+			if(capacity <= 0)
+                throw new BusinessRuleException("Room capacity must be a positive number.");
+
+			if(string.IsNullOrWhiteSpace(roomType))
+				throw new BusinessRuleException("Room type cannot be empty.");
+
+			if(roomNumber <= 0)
+				throw new BusinessRuleException("Room number must be a positive integer.");
+
             var room = new Room
             {
                 Id = Guid.NewGuid(),
