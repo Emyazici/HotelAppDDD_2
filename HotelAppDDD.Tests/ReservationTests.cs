@@ -177,7 +177,7 @@ public class ReservationTests
         var reservation = CreateValidReservation();
         reservation.CheckIn();
 
-        reservation.CheckOut();
+        reservation.CheckOut(DateTime.Now);
 
         reservation.IsCheckedOut.Should().BeTrue();
         reservation.ActualCheckOutDate.Should().NotBeNull();
@@ -189,7 +189,7 @@ public class ReservationTests
         var reservation = CreateValidReservation();
         reservation.CheckIn();
 
-        reservation.CheckOut();
+        reservation.CheckOut(DateTime.Now);
 
         reservation.DomainEvents.OfType<ReservationCheckedOutEvent>()
             .Should().ContainSingle();
@@ -200,7 +200,7 @@ public class ReservationTests
     {
         var reservation = CreateValidReservation();
 
-        var act = () => reservation.CheckOut();
+        var act = () => reservation.CheckOut(DateTime.Now);
 
         act.Should().Throw<BusinessRuleException>()
             .WithMessage("*checking in*");
@@ -211,9 +211,9 @@ public class ReservationTests
     {
         var reservation = CreateValidReservation();
         reservation.CheckIn();
-        reservation.CheckOut();
+        reservation.CheckOut(DateTime.Now);
 
-        var act = () => reservation.CheckOut();
+        var act = () => reservation.CheckOut(DateTime.Now);
 
         act.Should().Throw<BusinessRuleException>()
             .WithMessage("*CheckedOut*");
@@ -234,14 +234,32 @@ public class ReservationTests
     {
         // CheckOut zamanı ExpectedCheckOutDate'den önce olacak şekilde: bugünden
         // 10 gün sonrası expected, checkout şimdi oluyor
-        var checkIn = DateTime.UtcNow.AddDays(-5);
-        var checkOut = DateTime.UtcNow.AddDays(10); // henüz gelmedi
-        var reservation = Reservation.Create(RoomId, GuestId, checkIn, checkOut);
+        var expectedCheckOut = new DateTime(2024, 1, 11);
+        var expectedCheckIn = new DateTime(2024, 1, 1);
+        var actualCheckOut = new DateTime(2024, 1, 9); 
+        var reservation = Reservation.Create(RoomId, GuestId, expectedCheckIn, expectedCheckOut);
         reservation.CheckIn();
-        reservation.CheckOut(); // ActualCheckOutDate = UtcNow < ExpectedCheckOutDate
+        reservation.CheckOut(actualCheckOut); // ActualCheckOutDate = UtcNow < ExpectedCheckOutDate
 
         reservation.CalculateLateFee().Should().Be(0);
     }
+
+	[Fact]
+	public void CalculateLateFee_WhenCheckedOutLate_ShouldCalculateCorrectly()
+	{
+    // Arrange — 3 gün geç
+    	var checkIn = new DateTime(2024, 1, 1);
+    	var expectedCheckOut = new DateTime(2024, 1, 7);
+    
+    	var reservation = Reservation.Create(RoomId, GuestId, checkIn, expectedCheckOut);
+    	reservation.CheckIn();
+
+    	// Act — 3 gün geç çıkış
+    	var checkout = new DateTime(2024, 1, 10);
+		reservation.CheckOut(checkout);
+    	// Assert — 3 x 2000 = 6000 TL
+    	reservation.CalculateLateFee().Should().Be(6000);
+	}
 
     // --- Yardımcı Metot ---
 

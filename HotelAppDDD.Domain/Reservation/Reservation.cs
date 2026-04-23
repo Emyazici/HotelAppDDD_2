@@ -67,7 +67,7 @@ namespace HotelAppDDD.Domain.Reservation
             AddDomainEvent(new ReservationCheckedInEvent(Id, RoomId, GuestId, ActualCheckInDate.Value));
         }
 
-        public void CheckOut()
+        public void CheckOut(DateTime checkOutDate)
         {
             if (!IsCheckedIn)
                 throw new BusinessRuleException("Cannot check out without checking in first.");
@@ -75,7 +75,7 @@ namespace HotelAppDDD.Domain.Reservation
             if (IsCheckedOut)
                 throw new BusinessRuleException("The Reservation has been also CheckedOut");
 
-            ActualCheckOutDate = DateTime.UtcNow;
+            ActualCheckOutDate = checkOutDate;
             AddDomainEvent(new ReservationCheckedOutEvent(Id, RoomId, GuestId, ActualCheckOutDate.Value));
         }
 
