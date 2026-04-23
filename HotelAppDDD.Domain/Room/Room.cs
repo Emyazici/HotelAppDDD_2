@@ -37,12 +37,12 @@ namespace HotelAppDDD.Domain.Room
             return room;
         }
 
-        public void RoomReserve(int capacity)
+        public void RoomReserve(int guestCount)
         {
             if (!IsAvailable)
                 throw new BusinessRuleException("Room is not available for reservation.");
 
-            if (capacity > Capacity)
+            if (guestCount > Capacity)
                 throw new BusinessRuleException("Room capacity exceeded.");
 
             IsAvailable = false;
